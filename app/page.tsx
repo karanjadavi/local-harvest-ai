@@ -17,6 +17,7 @@ interface DiagnosticReport {
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'diagnostics' | 'calculator'>('diagnostics');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [language, setLanguage] = useState<'en' | 'sw' | 'fr'>('en');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
@@ -50,6 +51,7 @@ export default function Home() {
       const formData = new FormData();
       formData.append('image', imageFile);
       formData.append('notes', notes);
+      formData.append('language', language);
 
       const res = await fetch('/api/diagnose', {
         method: 'POST',
@@ -103,6 +105,17 @@ export default function Home() {
           </div>
           
           <div className="flex items-center gap-3">
+            {/* Language Selection Dropdown */}
+            <select
+              value={language}
+              onChange={(e: any) => setLanguage(e.target.value)}
+              className={`p-2 rounded-lg text-xs font-semibold border transition-colors ${inputBg}`}
+            >
+              <option value="en">?? English</option>
+              <option value="sw">?? Swahili</option>
+              <option value="fr">?? French</option>
+            </select>
+
             {/* Theme Toggle Button (Moon / Sun) */}
             <button
               onClick={toggleTheme}
@@ -114,12 +127,10 @@ export default function Home() {
               title="Toggle Light / Dark Mode"
             >
               {isDark ? (
-                /* Moon Icon for Dark Mode */
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 </svg>
               ) : (
-                /* Sun Icon for Light Mode */
                 <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
