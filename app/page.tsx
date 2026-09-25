@@ -29,7 +29,7 @@ export default function Home() {
   const [cropType, setCropType] = useState<'tomato' | 'maize' | 'beans'>('tomato');
 
   // Multi-Language Dictionary
-  const uiTexts: Record<string, any> = {
+  const uiTexts: Record<'en' | 'sw' | 'fr', Record<string, string>> = {
     en: {
       subtitle: 'Precision Crop Diagnostics & Actionable Agricultural Insights',
       tabDiag: 'AI Crop Diagnostics',
@@ -46,7 +46,7 @@ export default function Home() {
       symptomsHeader: 'Observed Symptoms',
       actionsHeader: 'Recommended Actions',
       emptyPrompt: 'Upload an image and run diagnostics to generate the report.',
-      exportPdf: '?? Export PDF',
+      exportPdf: 'Export PDF',
       calcTitle: 'Yield & Seed Input Calculator',
       selectCrop: 'Select Crop Type',
       landArea: 'Land Area (Acres)',
@@ -69,7 +69,7 @@ export default function Home() {
       symptomsHeader: 'Dalili Zilizoonekana',
       actionsHeader: 'Hatua Zinazopendekezwa',
       emptyPrompt: 'Pakia picha kisha anzisha uchunguzi ili kupata ripoti.',
-      exportPdf: '?? Pakua PDF',
+      exportPdf: 'Pakua PDF',
       calcTitle: 'Kikokotoo cha Mbegu na Mavuno',
       selectCrop: 'Chagua Aina ya Zao',
       landArea: 'Eneo la Shamba (Ekari)',
@@ -77,27 +77,27 @@ export default function Home() {
       estYield: 'Mavuno Yanayokadiriwa',
     },
     fr: {
-      subtitle: 'Diagnostics de Précision et Conseils Agricoles',
+      subtitle: 'Diagnostics de Precision et Conseils Agricoles',
       tabDiag: 'Diagnostic IA des Cultures',
       tabCalc: 'Calculateur de Semences et Rendement',
-      step1Title: '1. Télécharger une Image de Feuille',
-      uploadPlaceholder: 'Cliquez pour sélectionner ou glissez la photo ici',
-      notesLabel: 'Notes Supplémentaires (Optionnel)',
-      notesPlaceholder: 'ex: Flétrissement des feuilles inférieures à Kakamega...',
+      step1Title: '1. Telecharger une Image de Feuille',
+      uploadPlaceholder: 'Cliquez pour selectionner ou glissez la photo ici',
+      notesLabel: 'Notes Supplementaires (Optionnel)',
+      notesPlaceholder: 'ex: Fletrissement des feuilles inferieures a Kakamega...',
       btnRun: 'Lancer le Diagnostic IA',
       btnRunning: 'Analyse Pathologique en Cours...',
       step2Title: '2. Rapport de Diagnostic',
-      cropIdentified: 'Culture Identifiée',
-      healthStatus: 'État de Santé',
-      symptomsHeader: 'Symptômes Observés',
-      actionsHeader: 'Actions Recommandées',
-      emptyPrompt: 'Téléchargez une image et lancez le diagnostic pour afficher le rapport.',
-      exportPdf: '?? Exporter PDF',
+      cropIdentified: 'Culture Identifiee',
+      healthStatus: 'Etat de Sante',
+      symptomsHeader: 'Symptomes Observes',
+      actionsHeader: 'Actions Recommandees',
+      emptyPrompt: 'Telechargez une image et lancez le diagnostic pour afficher le rapport.',
+      exportPdf: 'Exporter PDF',
       calcTitle: 'Calculateur de Semences et Rendement',
-      selectCrop: 'Sélectionner le Type de Culture',
+      selectCrop: 'Selectionner le Type de Culture',
       landArea: 'Superficie du Terrain (Acres)',
       reqSeed: 'Semences Requises',
-      estYield: 'Rendement Estimé',
+      estYield: 'Rendement Estime',
     },
   };
 
@@ -117,7 +117,7 @@ export default function Home() {
 
   const handleRunDiagnostics = async () => {
     if (!imageFile) {
-      alert(language === 'sw' ? 'Tafadhali chagua picha ya mmea kwanza.' : language === 'fr' ? 'Veuillez sélectionner une image d\'abord.' : 'Please select or upload a crop image first.');
+      alert(language === 'sw' ? 'Tafadhali chagua picha ya mmea kwanza.' : language === 'fr' ? 'Veuillez selectionner une image d abord.' : 'Please select or upload a crop image first.');
       return;
     }
 
@@ -147,7 +147,6 @@ export default function Home() {
     }
   };
 
-  // Yield Estimation Logic
   const getCalculations = () => {
     switch (cropType) {
       case 'tomato':
@@ -161,7 +160,6 @@ export default function Home() {
 
   const calc = getCalculations();
 
-  // Dynamic Tailwind Theme Classes
   const isDark = theme === 'dark';
   const bgMain = isDark ? 'bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-900';
   const bgCard = isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200 shadow-sm';
@@ -171,7 +169,6 @@ export default function Home() {
 
   return (
     <main className={`min-h-screen transition-colors duration-200 p-4 md:p-8 ${bgMain}`}>
-      {/* Header */}
       <header className={`max-w-6xl mx-auto mb-8 border-b pb-4 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
         <div className="flex justify-between items-center">
           <div>
@@ -180,18 +177,16 @@ export default function Home() {
           </div>
           
           <div className="flex items-center gap-3">
-            {/* Language Selection Dropdown */}
             <select
               value={language}
-              onChange={(e: any) => setLanguage(e.target.value)}
+              onChange={(e) => setLanguage(e.target.value as 'en' | 'sw' | 'fr')}
               className={`p-2 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${inputBg}`}
             >
-              <option value="en">?? English</option>
-              <option value="sw">?? Kiswahili</option>
-              <option value="fr">?? Français</option>
+              <option value="en">English</option>
+              <option value="sw">Swahili</option>
+              <option value="fr">French</option>
             </select>
 
-            {/* Theme Toggle Button (Moon / Sun) */}
             <button
               onClick={toggleTheme}
               className={`p-2 rounded-lg border transition-colors flex items-center justify-center ${
@@ -199,17 +194,8 @@ export default function Home() {
                   ? 'bg-slate-800 border-slate-700 text-amber-300 hover:bg-slate-700' 
                   : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'
               }`}
-              title="Toggle Light / Dark Mode"
             >
-              {isDark ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              )}
+              {isDark ? '??' : '??'}
             </button>
 
             <span className="bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs px-3 py-1.5 rounded-full font-mono">
@@ -218,7 +204,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Tab Navigation */}
         <div className="flex gap-4 mt-6 print:hidden">
           <button
             onClick={() => setActiveTab('diagnostics')}
@@ -246,7 +231,6 @@ export default function Home() {
       <div className="max-w-6xl mx-auto">
         {activeTab === 'diagnostics' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Input Section */}
             <div className={`p-6 rounded-xl border print:hidden ${bgCard}`}>
               <h2 className="text-xl font-semibold mb-4 text-emerald-500">{t.step1Title}</h2>
               
@@ -283,7 +267,6 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Diagnostic Report Output */}
             <div className={`p-6 rounded-xl border ${bgCard}`}>
               <div className={`flex items-center justify-between mb-4 border-b pb-3 ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
                 <h2 className="text-xl font-semibold text-emerald-500">{t.step2Title}</h2>
@@ -296,7 +279,7 @@ export default function Home() {
                           : 'bg-amber-950 text-amber-400 border-amber-800'
                       }`}
                     >
-                      {report.isLive ? '? Live Gemini AI' : '?? Offline Demo Fallback'}
+                      {report.isLive ? 'Live Gemini AI' : 'Offline Fallback'}
                     </span>
                     <button
                       onClick={() => window.print()}
@@ -357,7 +340,6 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          /* Calculator Section */
           <div className={`p-6 rounded-xl border max-w-2xl mx-auto ${bgCard}`}>
             <h2 className="text-xl font-semibold mb-6 text-emerald-500">{t.calcTitle}</h2>
 
