@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 
@@ -203,13 +203,13 @@ export default function Home() {
 
             <button
               onClick={toggleTheme}
-              className={`p-2 rounded-lg border transition-colors flex items-center justify-center ${
+              className={`p-2 rounded-lg border text-xs font-semibold transition-colors flex items-center justify-center ${
                 isDark
                   ? 'bg-slate-800 border-slate-700 text-amber-300 hover:bg-slate-700'
                   : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'
               }`}
             >
-              {isDark ? '??' : '??'}
+              {isDark ? 'Dark' : 'Light'}
             </button>
 
             <span className="bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs px-3 py-1.5 rounded-full font-mono">
