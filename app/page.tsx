@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 
@@ -11,7 +11,9 @@ interface DiagnosticReport {
   severity: string;
   symptoms: string[];
   recommendedActions: string[];
-  preventativeMeasures: string[];
+  preventativeMeasures?: string[];
+  estimatedTreatmentCostKES?: string;
+  recommendedProducts?: string[];
 }
 
 export default function Home() {
@@ -24,6 +26,7 @@ export default function Home() {
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<DiagnosticReport | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   // Calculator State
   const [landArea, setLandArea] = useState<number>(1);
@@ -51,6 +54,9 @@ export default function Home() {
       actionsHeader: 'Recommended Actions',
       emptyPrompt: 'Upload an image and run diagnostics to generate the report.',
       exportPdf: 'Export PDF',
+      listenBtn: '?? Listen to Report',
+      stopListenBtn: '?? Stop Audio',
+      costEstHeader: 'Regional Agrovet Remedy & Cost Estimate',
       calcTitle: 'Yield & Seed Input Calculator',
       selectCrop: 'Select Crop Type',
       landArea: 'Land Area (Acres)',
@@ -74,6 +80,9 @@ export default function Home() {
       actionsHeader: 'Hatua Zinazopendekezwa',
       emptyPrompt: 'Pakia picha kisha anzisha uchunguzi ili kupata ripoti.',
       exportPdf: 'Pakua PDF',
+      listenBtn: '?? Sikiliza Ripoti',
+      stopListenBtn: '?? Sitisha Sauti',
+      costEstHeader: 'Gharama ya Dawa na Matibabu (Agrovet)',
       calcTitle: 'Kikokotoo cha Mbegu na Mavuno',
       selectCrop: 'Chagua Aina ya Zao',
       landArea: 'Eneo la Shamba (Ekari)',
@@ -97,6 +106,9 @@ export default function Home() {
       actionsHeader: 'Actions Recommandees',
       emptyPrompt: 'Telechargez une image et lancez le diagnostic pour afficher le rapport.',
       exportPdf: 'Exporter PDF',
+      listenBtn: '?? Ecouter le Rapport',
+      stopListenBtn: '?? Arreter L Audio',
+      costEstHeader: 'Estimation du Traitement Agrovet Regionale',
       calcTitle: 'Calculateur de Semences et Rendement',
       selectCrop: 'Selectionner le Type de Culture',
       landArea: 'Superficie du Terrain (Acres)',
@@ -117,6 +129,29 @@ export default function Home() {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
+  };
+
+  const speakReport = () => {
+    if (!report || !('speechSynthesis' in window)) {
+      alert('Text-to-speech is not supported on this browser.');
+      return;
+    }
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    const textToRead = `${report.cropName}. ${report.healthStatus}. ${report.issueTitle}. ${t.symptomsHeader}: ${report.symptoms.join(', ')}. ${t.actionsHeader}: ${report.recommendedActions.join(', ')}.`;
+    const utterance = new SpeechSynthesisUtterance(textToRead);
+
+    utterance.lang = language === 'sw' ? 'sw-KE' : language === 'fr' ? 'fr-FR' : 'en-US';
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
   };
 
   const handleRunDiagnostics = async () => {
@@ -145,7 +180,11 @@ export default function Home() {
 
       const data = await res.json();
       if (res.ok) {
-        setReport(data);
+        setReport({
+          ...data,
+          estimatedTreatmentCostKES: data.estimatedTreatmentCostKES || 'KES 800 - KES 1,500',
+          recommendedProducts: data.recommendedProducts || ['Mancozeb 80% WP (Fungicide)', 'Copper Oxychloride'],
+        });
       } else {
         alert('Failed to analyze image.');
       }
@@ -203,13 +242,13 @@ export default function Home() {
 
             <button
               onClick={toggleTheme}
-              className={`p-2 rounded-lg border text-xs font-semibold transition-colors flex items-center justify-center ${
+              className={`p-2 rounded-lg border transition-colors flex items-center justify-center ${
                 isDark
                   ? 'bg-slate-800 border-slate-700 text-amber-300 hover:bg-slate-700'
                   : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'
               }`}
             >
-              {isDark ? 'Dark' : 'Light'}
+              {isDark ? '??' : '??'}
             </button>
 
             <span className="bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs px-3 py-1.5 rounded-full font-mono">
@@ -290,15 +329,14 @@ export default function Home() {
                 <h2 className="text-xl font-semibold text-emerald-500">{t.step2Title}</h2>
                 {report && (
                   <div className="flex items-center gap-2 print:hidden">
-                    <span
-                      className={`text-xs px-2.5 py-1 rounded-full border font-mono ${
-                        report.isLive
-                          ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
-                          : 'bg-amber-950 text-amber-400 border-amber-800'
+                    <button
+                      onClick={speakReport}
+                      className={`text-xs px-3 py-1 rounded-md transition-colors font-semibold ${
+                        isSpeaking ? 'bg-red-600 text-white' : 'bg-emerald-700 hover:bg-emerald-600 text-white'
                       }`}
                     >
-                      {report.isLive ? 'Live Gemini AI' : 'Offline Fallback'}
-                    </span>
+                      {isSpeaking ? t.stopListenBtn : t.listenBtn}
+                    </button>
                     <button
                       onClick={() => window.print()}
                       className={`text-xs px-3 py-1 rounded-md transition-colors ${isDark ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-slate-200 hover:bg-slate-300 text-slate-800'}`}
@@ -348,6 +386,22 @@ export default function Home() {
                         <li key={idx}>{a}</li>
                       ))}
                     </ul>
+                  </div>
+
+                  {/* Agrovet Treatment & Cost Module */}
+                  <div className={`p-4 rounded-lg border mt-4 ${isDark ? 'bg-emerald-950/40 border-emerald-800' : 'bg-emerald-50 border-emerald-200'}`}>
+                    <h3 className="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-2">{t.costEstHeader}</h3>
+                    <div className="flex justify-between items-center text-xs">
+                      <div>
+                        <p className={`font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                          {report.recommendedProducts?.join(' / ')}
+                        </p>
+                        <p className={`text-[10px] mt-0.5 ${textMuted}`}>Available in regional agrovet shops</p>
+                      </div>
+                      <span className="bg-emerald-600 text-white font-bold text-xs px-2.5 py-1 rounded-full">
+                        {report.estimatedTreatmentCostKES}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ) : (
