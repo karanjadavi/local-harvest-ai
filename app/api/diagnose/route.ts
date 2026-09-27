@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+ï»¿import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     const languageNames: Record<string, string> = {
       en: 'English',
       sw: 'Swahili (Kiswahili)',
-      fr: 'French (Français)',
+      fr: 'French (Franï¿½ais)',
     };
     const targetLang = languageNames[language] || 'English';
 
@@ -69,20 +69,20 @@ export async function POST(req: Request) {
         healthStatus: 'Action Requise',
         issueTitle: 'Alternariose (Alternaria solani)',
         confidence: '94%',
-        severity: 'Modérée',
+        severity: 'Modï¿½rï¿½e',
         symptoms: [
-          'Taches sombres concentriques sur le feuillage inférieur',
-          'Halo jaunissant autour des lésions principales',
-          'Léger enroulement de la pointe des feuilles dû au stress',
+          'Taches sombres concentriques sur le feuillage infï¿½rieur',
+          'Halo jaunissant autour des lï¿½sions principales',
+          'Lï¿½ger enroulement de la pointe des feuilles dï¿½ au stress',
         ],
         recommendedActions: [
-          'Tailler les feuilles inférieures touchées pour améliorer la circulation de l\'air',
-          'Appliquer un fongicide à base de cuivre tôt le matin',
-          'Éviter l\'arrosage par aspersion pour garder les feuilles sèches',
+          'Tailler les feuilles infï¿½rieures touchï¿½es pour amï¿½liorer la circulation de l\'air',
+          'Appliquer un fongicide ï¿½ base de cuivre tï¿½t le matin',
+          'ï¿½viter l\'arrosage par aspersion pour garder les feuilles sï¿½ches',
         ],
         preventativeMeasures: [
           'Effectuer une rotation des cultures la saison prochaine',
-          'Pailler le sol au pied des plants pour éviter les éclaboussures',
+          'Pailler le sol au pied des plants pour ï¿½viter les ï¿½claboussures',
         ],
       },
     };
@@ -179,3 +179,4 @@ Return EXCLUSIVELY a JSON object matching this structure:
     );
   }
 }
+
