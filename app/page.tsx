@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface DiagnosticReport {
   isLive?: boolean;
@@ -15,6 +15,7 @@ interface DiagnosticReport {
 }
 
 export default function Home() {
+  const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<'diagnostics' | 'calculator'>('diagnostics');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [language, setLanguage] = useState<'en' | 'sw' | 'fr'>('en');
@@ -28,7 +29,10 @@ export default function Home() {
   const [landArea, setLandArea] = useState<number>(1);
   const [cropType, setCropType] = useState<'tomato' | 'maize' | 'beans'>('tomato');
 
-  // Multi-Language Dictionary
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const uiTexts: Record<'en' | 'sw' | 'fr', Record<string, string>> = {
     en: {
       subtitle: 'Precision Crop Diagnostics & Actionable Agricultural Insights',
@@ -117,7 +121,13 @@ export default function Home() {
 
   const handleRunDiagnostics = async () => {
     if (!imageFile) {
-      alert(language === 'sw' ? 'Tafadhali chagua picha ya mmea kwanza.' : language === 'fr' ? 'Veuillez selectionner une image d abord.' : 'Please select or upload a crop image first.');
+      alert(
+        language === 'sw'
+          ? 'Tafadhali chagua picha ya mmea kwanza.'
+          : language === 'fr'
+          ? 'Veuillez selectionner une image d abord.'
+          : 'Please select or upload a crop image first.'
+      );
       return;
     }
 
@@ -167,6 +177,10 @@ export default function Home() {
   const textMuted = isDark ? 'text-slate-400' : 'text-slate-600';
   const inputBg = isDark ? 'bg-slate-900 border-slate-700 text-slate-200' : 'bg-white border-slate-300 text-slate-800';
 
+  if (!mounted) {
+    return <div className="min-h-screen bg-slate-900" />;
+  }
+
   return (
     <main className={`min-h-screen transition-colors duration-200 p-4 md:p-8 ${bgMain}`}>
       <header className={`max-w-6xl mx-auto mb-8 border-b pb-4 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
@@ -175,7 +189,7 @@ export default function Home() {
             <h1 className="text-3xl font-bold tracking-tight text-emerald-500">Local Harvest AI</h1>
             <p className={`text-sm ${textMuted}`}>{t.subtitle}</p>
           </div>
-          
+
           <div className="flex items-center gap-3">
             <select
               value={language}
@@ -190,8 +204,8 @@ export default function Home() {
             <button
               onClick={toggleTheme}
               className={`p-2 rounded-lg border transition-colors flex items-center justify-center ${
-                isDark 
-                  ? 'bg-slate-800 border-slate-700 text-amber-300 hover:bg-slate-700' 
+                isDark
+                  ? 'bg-slate-800 border-slate-700 text-amber-300 hover:bg-slate-700'
                   : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'
               }`}
             >
@@ -208,9 +222,11 @@ export default function Home() {
           <button
             onClick={() => setActiveTab('diagnostics')}
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-              activeTab === 'diagnostics' 
-                ? 'bg-emerald-600 text-white' 
-                : isDark ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-200 text-slate-700 hover:text-slate-900'
+              activeTab === 'diagnostics'
+                ? 'bg-emerald-600 text-white'
+                : isDark
+                ? 'bg-slate-800 text-slate-400 hover:text-white'
+                : 'bg-slate-200 text-slate-700 hover:text-slate-900'
             }`}
           >
             {t.tabDiag}
@@ -218,9 +234,11 @@ export default function Home() {
           <button
             onClick={() => setActiveTab('calculator')}
             className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-              activeTab === 'calculator' 
-                ? 'bg-emerald-600 text-white' 
-                : isDark ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-200 text-slate-700 hover:text-slate-900'
+              activeTab === 'calculator'
+                ? 'bg-emerald-600 text-white'
+                : isDark
+                ? 'bg-slate-800 text-slate-400 hover:text-white'
+                : 'bg-slate-200 text-slate-700 hover:text-slate-900'
             }`}
           >
             {t.tabCalc}
@@ -233,7 +251,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className={`p-6 rounded-xl border print:hidden ${bgCard}`}>
               <h2 className="text-xl font-semibold mb-4 text-emerald-500">{t.step1Title}</h2>
-              
+
               <div className="mb-4">
                 <label className={`block w-full border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${isDark ? 'border-slate-600 hover:border-emerald-500' : 'border-slate-300 hover:border-emerald-500'}`}>
                   <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
