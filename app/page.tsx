@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 
@@ -248,7 +248,7 @@ export default function Home() {
                   : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'
               }`}
             >
-              {isDark ? '??' : '??'}
+              {isDark ? 'Dark' : 'Light'}
             </button>
 
             <span className="bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs px-3 py-1.5 rounded-full font-mono">
@@ -466,3 +466,4 @@ export default function Home() {
     </main>
   );
 }
+
