@@ -1,4 +1,4 @@
-ï»¿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 
@@ -16,6 +16,14 @@ interface DiagnosticReport {
   recommendedProducts?: string[];
 }
 
+interface WeatherData {
+  temp: number;
+  humidity: number;
+  rainProb: number;
+  riskLevel: 'Low' | 'Moderate' | 'High';
+  riskMessage: string;
+}
+
 export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<'diagnostics' | 'calculator'>('diagnostics');
@@ -27,6 +35,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<DiagnosticReport | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [weather, setWeather] = useState<WeatherData | null>(null);
 
   // Calculator State
   const [landArea, setLandArea] = useState<number>(1);
@@ -34,7 +43,55 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
+    fetchWeather();
   }, []);
+
+  const fetchWeather = () => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          try {
+            const res = await fetch(
+              `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation`
+            );
+            const data = await res.json();
+            if (data?.current) {
+              const humidity = data.current.relative_humidity_2m;
+              const temp = data.current.temperature_2m;
+              const precip = data.current.precipitation || 0;
+
+              let riskLevel: 'Low' | 'Moderate' | 'High' = 'Low';
+              let riskMessage = 'Favorable weather for crops.';
+
+              if (humidity > 75 || precip > 2) {
+                riskLevel = 'High';
+                riskMessage = 'High moisture levels — High risk for Late Blight & fungal spores.';
+              } else if (humidity > 60) {
+                riskLevel = 'Moderate';
+                riskMessage = 'Moderate moisture — Monitor leaves for early wilt or mildew.';
+              }
+
+              setWeather({ temp, humidity, rainProb: precip, riskLevel, riskMessage });
+            }
+          } catch (err) {
+            console.error('Failed to fetch weather data:', err);
+          }
+        },
+        () => {
+          // Default weather fallback (Kakamega regional profile)
+          setWeather({
+            temp: 24,
+            humidity: 78,
+            rainProb: 1.2,
+            riskLevel: 'High',
+            riskMessage: 'High humidity detected in region — High risk for Late Blight.',
+          });
+        }
+      );
+    }
+  };
 
   const uiTexts: Record<'en' | 'sw' | 'fr', Record<string, string>> = {
     en: {
@@ -57,6 +114,7 @@ export default function Home() {
       listenBtn: '?? Listen to Report',
       stopListenBtn: '?? Stop Audio',
       costEstHeader: 'Regional Agrovet Remedy & Cost Estimate',
+      weatherHeader: 'Live Regional Weather & Disease Risk',
       calcTitle: 'Yield & Seed Input Calculator',
       selectCrop: 'Select Crop Type',
       landArea: 'Land Area (Acres)',
@@ -83,6 +141,7 @@ export default function Home() {
       listenBtn: '?? Sikiliza Ripoti',
       stopListenBtn: '?? Sitisha Sauti',
       costEstHeader: 'Gharama ya Dawa na Matibabu (Agrovet)',
+      weatherHeader: 'Hali ya Hewa na Hatari ya Magonjwa',
       calcTitle: 'Kikokotoo cha Mbegu na Mavuno',
       selectCrop: 'Chagua Aina ya Zao',
       landArea: 'Eneo la Shamba (Ekari)',
@@ -109,6 +168,7 @@ export default function Home() {
       listenBtn: '?? Ecouter le Rapport',
       stopListenBtn: '?? Arreter L Audio',
       costEstHeader: 'Estimation du Traitement Agrovet Regionale',
+      weatherHeader: 'Meteo Regionale et Risque de Maladies',
       calcTitle: 'Calculateur de Semences et Rendement',
       selectCrop: 'Selectionner le Type de Culture',
       landArea: 'Superficie du Terrain (Acres)',
@@ -248,7 +308,7 @@ export default function Home() {
                   : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'
               }`}
             >
-              {isDark ? 'Dark' : 'Light'}
+              {isDark ? '??' : '??'}
             </button>
 
             <span className="bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs px-3 py-1.5 rounded-full font-mono">
@@ -286,6 +346,29 @@ export default function Home() {
       </header>
 
       <div className="max-w-6xl mx-auto">
+        {weather && (
+          <div className={`p-4 rounded-xl border mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${bgCard}`}>
+            <div>
+              <p className="text-xs font-bold text-emerald-500 uppercase tracking-wider">{t.weatherHeader}</p>
+              <p className="text-xs mt-1 text-slate-300">{weather.riskMessage}</p>
+            </div>
+            <div className="flex items-center gap-4 text-xs">
+              <span className={`px-3 py-1 rounded-full font-bold ${
+                weather.riskLevel === 'High'
+                  ? 'bg-rose-950 text-rose-400 border border-rose-800'
+                  : weather.riskLevel === 'Moderate'
+                  ? 'bg-amber-950 text-amber-400 border border-amber-800'
+                  : 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+              }`}>
+                Risk Level: {weather.riskLevel}
+              </span>
+              <div className={textMuted}>
+                <span>??? {weather.temp}°C</span> | <span>?? {weather.humidity}% Humidity</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'diagnostics' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className={`p-6 rounded-xl border print:hidden ${bgCard}`}>
@@ -388,7 +471,6 @@ export default function Home() {
                     </ul>
                   </div>
 
-                  {/* Agrovet Treatment & Cost Module */}
                   <div className={`p-4 rounded-lg border mt-4 ${isDark ? 'bg-emerald-950/40 border-emerald-800' : 'bg-emerald-50 border-emerald-200'}`}>
                     <h3 className="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-2">{t.costEstHeader}</h3>
                     <div className="flex justify-between items-center text-xs">
@@ -466,4 +548,3 @@ export default function Home() {
     </main>
   );
 }
-
